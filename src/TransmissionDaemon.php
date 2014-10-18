@@ -82,6 +82,9 @@ class TransmissionDaemon
         assert('strlen($movie->magnet)');
         try {
             $this->api->get($movie->torrentHash);
+            $movie->status = Movie::STATUS_DOWNLOADING;
+            $movie->downloadProgress = 0;
+            $this->em->flush();
             return; // already started
         } catch (\RuntimeException $e) {
             // NOP
