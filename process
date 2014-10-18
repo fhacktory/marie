@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+namespace Duchesse\Chaton\Marie;
+
+error_reporting(-1);
+require_once 'vendor/autoload.php';
+
+openlog('marie-process', LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_DAEMON);
+
+if (empty($argv[1]))
+    throw new \InvalidArgumentException('No IMDB ID given as argv[1].');
+
+$process = new Processor($argv[1]);
+$process();

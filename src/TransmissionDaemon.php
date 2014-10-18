@@ -9,6 +9,7 @@ class TransmissionDaemon
 {
     protected $api;
     protected $em;
+    protected $proc;
 
     public function __construct()
     {
@@ -40,13 +41,15 @@ class TransmissionDaemon
                     $this->updateDownloading($movie);
                     break;
                 case Movie::STATUS_PENDING_PROCESSING:
-                    // TODO
+                    if ($this->proc === null)
+                        $this->process($movie);
                     break;
                 case Movie::STATUS_PROCESSING:
-                    // TODO
+                    if ($this->proc === null)
+                        throw new \RuntimeException("Movie #{$movie->imdbId} processing but no proc.");
+                    $this->updateProcessing($movie);
                     break;
                 case Movie::STATUS_CACHED:
-                    // dafuq?
                     break;
                 default:
                     assert('false /* unreachable */');
@@ -54,13 +57,45 @@ class TransmissionDaemon
         }
     }
 
+    protected function process(Movie $movie)
+    {
+        assert('$this->proc === null');
+        assert('$movie->status === \Duchesse\Chaton\Marie\Models\Movie::STATUS_PENDING_PROCESSING');
+        syslog(LOG_INFO, "Starting process on #{$movie->imdbId}.");
+
+        $bin = realpath(dirname(__DIR__)) . '/process';
+
+        $this->proc = popen($bin . ' ' . escapeshellarg($movie->imdbId), 'r');
+        $movie->status = Movie::STATUS_PROCESSING;
+        $movie->progress = 0;
+        $this->em->flush();
+    }
+
+    protected function updateProcessing(Movie $movie)
+    {
+        if (feof($this->proc)) {
+            syslog(LOG_INFO, "Done processing #{$movie->imdbId}.");
+            fclose($this->proc);
+            $this->proc = null;
+            $movie->status = Movie::STATUS_CACHED;
+            $movie->progress = null;
+        } else {
+            $pcts = array_filter(explode(PHP_EOL, trim(fread($this->proc, 1024))));
+            $movie->progress = end($pcts) > $movie->progress ? end($pcts) : $movie->progress;
+            syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - processing {$movie->progress}%.");
+        }
+
+        $this->em->flush();
+    }
+
     protected function updateDownloading(Movie $movie)
     {
+        assert('$movie->status === \Duchesse\Chaton\Marie\Models\Movie::STATUS_DOWNLOADING');
         $torrent = $this->api->get($movie->torrentHash);
         $movie->progress = (int) $torrent->getPercentDone();
         $movie->eta = (int) $torrent->getEta();
         syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - downloading {$movie->progress}% (ETA {$movie->eta})");
-        if($torrent->isFinished()) {
+        if ($torrent->isFinished()) {
             syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - finished");
             $this->api->stop($torrent);
             $movie->progress = null;
@@ -73,6 +108,7 @@ class TransmissionDaemon
 
     protected function startDownload(Movie $movie)
     {
+        assert('$movie->status === \Duchesse\Chaton\Marie\Models\Movie::STATUS_NOT_CACHED');
         assert('strlen($movie->magnet)');
         try {
             $this->api->get($movie->torrentHash);
