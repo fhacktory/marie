@@ -120,8 +120,33 @@ class Controller
     {
         $api = Util::getTransmissionApi();
         $freeSpace = (int) $api->getFreeSpace()->getSize();
+        $s = $api->getSessionStats();
 
-        $this->data = compact('freeSpace');
+        $stats = [
+            'activeTorrentCount' => (int) $s->getActiveTorrentCount(),
+            'downloadSpeed'      => (int) $s->getDownloadSpeed(),
+            'pausedTorrentCount' => (int) $s->getPausedTorrentCount(),
+            'torrentCount'       => (int) $s->getTorrentCount(),
+            'uploadSpeed'        => (int) $s->getUploadSpeed(),
+
+            'current' => [
+                'downloadedBytes' => (int) $s->getCurrent()->getDownloadedBytes(),
+                'filesAdded'      => (int) $s->getCurrent()->getFilesAdded(),
+                'secondsActive'   => (int) $s->getCurrent()->getSecondsActive(),
+                'sessionCount'    => (int) $s->getCurrent()->getSessionCount(),
+                'uploadedBytes'   => (int) $s->getCurrent()->getUploadedBytes(),
+            ],
+
+            'cumulative' => [
+                'downloadedBytes' => (int) $s->getCumulative()->getDownloadedBytes(),
+                'filesAdded'      => (int) $s->getCumulative()->getFilesAdded(),
+                'secondsActive'   => (int) $s->getCumulative()->getSecondsActive(),
+                'sessionCount'    => (int) $s->getCumulative()->getSessionCount(),
+                'uploadedBytes'   => (int) $s->getCumulative()->getUploadedBytes(),
+            ],
+        ];
+
+        $this->data = compact('freeSpace', 'stats');
         $this->out();
     }
 }
