@@ -5,7 +5,7 @@ use Duchesse\Chaton\Marie\Util;
 
 class Scraper
 {
-    const BASE_URL     = 'https://thepiratebay.se';
+    const BASE_URL     = 'https://thepiratebay.org';
     const SEARCH_QUERY = '/search/{query}/0/{order}/{cat}';
 
     const CAT_VIDEO = 200;
