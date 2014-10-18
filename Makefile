@@ -16,3 +16,4 @@ $(COMPOSER):
 
 composer.lock: composer.json composer.phar
 	$(COMPOSER) update
+	touch composer.lock
