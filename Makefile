@@ -1,5 +1,10 @@
 COMPOSER=./composer.phar
+DOCTRINE=vendor/bin/doctrine
 all: composer.lock
+
+.PHONY: schema
+schema: composer.lock src/Models/*.php
+	$(DOCTRINE) orm:schema-tool:create
 
 $(COMPOSER):
 	wget -N https://getcomposer.org/composer.phar -O $(COMPOSER)

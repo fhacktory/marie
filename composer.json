@@ -1,6 +1,6 @@
 {
     "require": {
-        "doctrine/orm": "2.3.*",
+        "doctrine/orm": "2.4.*",
         "kleiram/transmission-php": "dev-master",
         "slim/slim": "2.*"
     },
