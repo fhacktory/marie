@@ -6,7 +6,7 @@ error_reporting(-1);
 require_once 'vendor/autoload.php';
 
 
-$app = new \Slim\Slim();
+$app = new \Slim\Slim(['debug' => false]);
 $app->hook('slim.after.router', function() use ($app) {
     if (strpos($app->request->getResourceUri(), '/api/') === 0)
         $app->response->headers->set('Content-Type', 'application/json');

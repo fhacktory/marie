@@ -52,7 +52,7 @@ class Movie
             true
         ));
 
-        if (!is_object($data))
+        if(!is_object($data) || (property_exists($data, 'Response') && $data->Response === 'False'))
             throw new \RuntimeException("Unable to get IMDB data for `{$this->imdbId}`");
 
         $this->title = $data->Title;
