@@ -9,6 +9,8 @@ use Duchesse\Chaton\Marie\ThePirateBay\Scraper;
  */
 class Movie
 {
+    use \Duchesse\Chaton\Marie\Struct;
+
     /**
      * @Id @Column(length=9)
      */
