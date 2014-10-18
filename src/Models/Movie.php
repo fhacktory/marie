@@ -21,6 +21,11 @@ class Movie
      */
     public $title;
 
+    /**
+     * @Column(type="integer", nullable=true)
+     */
+    public $eta;
+
     const STATUS_NOT_CACHED         = 'not_cached';
     const STATUS_DOWNLOADING        = 'downloading';
     const STATUS_PENDING_PROCESSING = 'pending_processing';
