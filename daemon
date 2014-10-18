@@ -8,10 +8,5 @@ require_once 'vendor/autoload.php';
 
 openlog('marie', LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_DAEMON);
 
-$host = getenv('DUCHESSE_HOST');
-$port = getenv('DUCHESSE_PORT');
-$user = getenv('DUCHESSE_USER');
-$pass = getenv('DUCHESSE_PASS');
-
-$daemon = new TransmissionDaemon('localhost', 9091, $user, $pass);
+$daemon = new TransmissionDaemon();
 $daemon();

@@ -4,6 +4,8 @@ namespace Duchesse\Chaton\Marie;
 
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
+use Transmission\Client;
+use Transmission\Transmission;
 
 class Util
 {
@@ -71,4 +73,21 @@ class Util
       );
     }
 
+    public static function getTransmissionApi()
+    {
+        $host = getenv('DUCHESSE_HOST');
+        $port = (int) getenv('DUCHESSE_PORT');
+        $user = getenv('DUCHESSE_USER');
+        $pass = getenv('DUCHESSE_PASS');
+
+        assert('strlen($host) && $port > 0');
+
+        $client = new Client();
+        if ($pass !== null)
+            $client->authenticate($user, $pass);
+
+        $api = new Transmission($host, $port);
+        $api->setClient($client);
+        return $api;
+    }
 }

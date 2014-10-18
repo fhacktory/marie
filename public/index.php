@@ -29,6 +29,7 @@ $app->group('/api', function() use ($app) {
     $app->get('/movie/refresh/:imdbId', [$controller, 'movieRefresh']);
     $app->get('/movie/:imdbId',         [$controller, 'movieGet']);
     $app->get('/torrent/search/:query', [$controller, 'torrentSearch']);
+    $app->get('/status',                [$controller, 'status']);
 });
 
 $app->run();

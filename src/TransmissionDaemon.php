@@ -4,23 +4,15 @@ namespace Duchesse\Chaton\Marie;
 
 use Duchesse\Chaton\Marie\Util;
 use Duchesse\Chaton\Marie\Models\Movie;
-use Transmission\Client;
-use Transmission\Transmission;
 
 class TransmissionDaemon
 {
     protected $api;
     protected $em;
 
-    public function __construct($host, $port, $user = null, $pass = null)
+    public function __construct()
     {
-        $client = new Client();
-        if ($pass !== null)
-            $client->authenticate($user, $pass);
-
-        $this->api = new Transmission($host, $port);
-        $this->api->setClient($client);
-
+        $this->api = Util::getTransmissionApi();
         $this->em = Util::getEntityManager();
     }
 

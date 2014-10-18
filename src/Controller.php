@@ -115,4 +115,13 @@ class Controller
         $this->data = compact('torrents');
         $this->out();
     }
+
+    public function status()
+    {
+        $api = Util::getTransmissionApi();
+        $freeSpace = (int) $api->getFreeSpace()->getSize();
+
+        $this->data = compact('freeSpace');
+        $this->out();
+    }
 }
