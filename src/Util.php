@@ -44,4 +44,31 @@ class Util
 
         return $em;
     }
+
+
+    const URL_SECRET = 'DUCHESSEFTW';
+    const URL_HOST = 'data.trolls.cat';
+    const URL_EXPIRE = 60; // seconds
+
+    /**
+     * @param string $uri
+     * @return string URL with limited lifetime.
+     */
+    function buildUrl($uri)
+    {
+      $expire = time() + self::URL_EXPIRE;
+
+      $rawToken = sprintf('%d:%s:%s', $expire, $uri, self::URL_SECRET);
+      $encodedToken = base64_encode(md5($rawToken, true));
+      $finalToken = str_replace(['=', '+', '/'], ['', '-', '_'], $encodedToken);
+
+      return sprintf(
+          'http://%s%s?md5=%s&expires=%d',
+          self::URL_HOST,
+          $path,
+          $finalToken,
+          $expire
+      );
+    }
+
 }
