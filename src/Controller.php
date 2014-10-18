@@ -94,6 +94,16 @@ class Controller
         $this->em->flush();
     }
 
+    public function movieRefresh($imdbId)
+    {
+        $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
+        $movie->refreshFromImdb();
+        $movie->refreshFromTpb();
+        $this->em->flush();
+
+        $this->movieGet($imdbId);
+    }
+
     public function torrentSearch($query)
     {
         $torrents = Scraper::search(
