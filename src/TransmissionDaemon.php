@@ -65,13 +65,13 @@ class TransmissionDaemon
     protected function updateDownloading(Movie $movie)
     {
         $torrent = $this->api->get($movie->torrentHash);
-        $movie->downloadProgress = (int) $torrent->getPercentDone();
+        $movie->progress = (int) $torrent->getPercentDone();
         $movie->eta = (int) $torrent->getEta();
-        syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - downloading {$movie->downloadProgress}% (ETA {$movie->eta})");
+        syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - downloading {$movie->progress}% (ETA {$movie->eta})");
         if($torrent->isFinished()) {
             syslog(LOG_INFO, "{$movie->imdbId} ({$movie->title}) - finished");
             $this->api->stop($torrent);
-            $movie->downloadProgress = null;
+            $movie->progress = null;
             $movie->eta = null;
             $movie->status = Movie::STATUS_PENDING_PROCESSING;
         }
@@ -85,7 +85,7 @@ class TransmissionDaemon
         try {
             $this->api->get($movie->torrentHash);
             $movie->status = Movie::STATUS_DOWNLOADING;
-            $movie->downloadProgress = 0;
+            $movie->progress = 0;
             $movie->eta = -2;
             $this->em->flush();
             return; // already started
@@ -97,7 +97,7 @@ class TransmissionDaemon
         $torrent = $this->api->add($movie->magnet);
         $this->api->start($torrent);
         $movie->status = Movie::STATUS_DOWNLOADING;
-        $movie->downloadProgress = 0;
+        $movie->progress = 0;
         $movie->eta = -2;
         $this->em->flush();
     }

@@ -40,7 +40,7 @@ class Movie
     /**
      * @Column(type="integer", nullable=true)
      */
-    public $downloadProgress;
+    public $progress;
 
     /**
      * @Column(length=40)
