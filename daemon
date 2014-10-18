@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+
+namespace Duchesse\Chaton\Marie;
+
+error_reporting(-1);
+require_once 'vendor/autoload.php';
+
+openlog('marie', LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_DAEMON);
+$daemon = new TransmissionDaemon();
+$daemon();
