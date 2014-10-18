@@ -19,7 +19,7 @@ class Scraper
      * @param string $query search string.
      * @param int $cat CAT_*
      * @param int $order ORDER_*
-     * @return Torrent
+     * @return Torrent[]
      */
     public static function search($query, $cat, $order)
     {
@@ -29,7 +29,7 @@ class Scraper
         $magnet = self::getTorrentMagnet($xml);
         $imdb = self::getTorrentImdb($xml);
 
-        return new Torrent(compact('url', 'magnet', 'imdb'));
+        return [new Torrent(compact('url', 'magnet', 'imdb'))];
     }
 
     /**

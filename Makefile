@@ -1,10 +1,14 @@
 COMPOSER=./composer.phar
 DOCTRINE=vendor/bin/doctrine
-all: composer.lock
+all: schema composer.lock
 
 .PHONY: schema
-schema: composer.lock src/Models/*.php
-	$(DOCTRINE) orm:schema-tool:create
+schema: composer.lock $(wildcard src/Models/*.php)
+	$(DOCTRINE) orm:schema-tool:update --force --dump-sql
+
+.PHONY: drop-schema
+drop-schema: composer.lock
+	$(DOCTRINE) orm:schema-tool:drop --force
 
 $(COMPOSER):
 	wget -N https://getcomposer.org/composer.phar -O $(COMPOSER)

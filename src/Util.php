@@ -28,18 +28,18 @@ class Util
     {
         static $em = null;
         if($em === null) {
-            $em = EntityManager::create(
-                [
-                    'driver'   => 'pdo_mysql',
-                    'user'     => 'marie',
-                    'password' => 'callas',
-                    'dbname'   => 'marie',
-                ],
-                Setup::createAnnotationMetadataConfiguration(
-                    ['src/Models'],
-                    true
-                )
+            $dbConfig = [
+                'driver'   => 'pdo_mysql',
+                'user'     => 'marie',
+                'password' => 'callas',
+                'dbname'   => 'marie',
+            ];
+            $meta = Setup::createAnnotationMetadataConfiguration(
+                ['src/Models'],
+                true
             );
+            $meta->addEntityNamespace('Marie', 'Duchesse\Chaton\Marie\Models');
+            $em = EntityManager::create($dbConfig, $meta);
         }
 
         return $em;
