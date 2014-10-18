@@ -5,14 +5,15 @@ use Duchesse\Chaton\Marie\Util;
 
 class Scraper
 {
-    const BASE_URL = 'https://thepiratebay.se';
+    const BASE_URL     = 'https://thepiratebay.se';
     const SEARCH_QUERY = '/search/{query}/0/{order}/{cat}';
+
     const CAT_VIDEO = 200;
     const ORDER_SEEDERS_DESC = 7;
 
     const XPATH_TORRENT_LINK = "id('searchResult')/tr[1]/td[2]/div/a";
-    const XPATH_MAGNET = "id('details')/div[4]/a[1]";
-    const XPATH_IMDB = "id('details')/dl[1]/dd[4]/a";
+    const XPATH_MAGNET       = "id('details')/div[4]/a[1]";
+    const XPATH_IMDB         = "id('details')/dl[1]/dd[4]/a";
 
     /**
      * @param string $query search string.
