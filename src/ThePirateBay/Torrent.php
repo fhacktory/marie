@@ -9,4 +9,5 @@ class Torrent
     public $magnet;
     public $url;
     public $imdb;
+    public $hash;
 }

@@ -14,6 +14,7 @@ class Scraper
     const XPATH_TORRENT_LINK = "id('searchResult')/tr[1]/td[2]/div/a";
     const XPATH_MAGNET       = "id('details')/div[4]/a[1]";
     const XPATH_IMDB         = "id('details')/dl[1]/dd[4]/a";
+    const XPATH_HASH         = "id('details')/dl[1]";
 
     /**
      * @param string $query search string.
@@ -23,13 +24,19 @@ class Scraper
      */
     public static function search($query, $cat, $order)
     {
-        $url = self::getFirstResultUrl(urlencode($query), $cat, $order);
+        try {
+            $url = self::getFirstResultUrl(urlencode($query), $cat, $order);
+        } catch (\RuntimeException $e) {
+            return [];
+        }
+
         $torrentXml = $xml = self::xmlFromUrl($url);
 
         $magnet = self::getTorrentMagnet($xml);
         $imdb = self::getTorrentImdb($xml);
+        $hash = self::getTorrentHash($xml);
 
-        return [new Torrent(compact('url', 'magnet', 'imdb'))];
+        return [new Torrent(compact('url', 'magnet', 'imdb', 'hash'))];
     }
 
     /**
@@ -43,6 +50,19 @@ class Scraper
             throw new \RuntimeException("No imdb for torrent at `$url`.");
         sscanf((string) $imdb[0]['href'], "http://www.imdb.com/title/%s", $url);
         return trim($url, '/');
+    }
+
+    /**
+     * @param SimpleXmlElement
+     * @return string HASH ID.
+     */
+    protected static function getTorrentHash($xml)
+    {
+        $hash = $xml->xpath(self::XPATH_HASH);
+        if(count($hash) !== 1)
+            throw new \RuntimeException("No hash for torrent at `$url`.");
+
+        return strtoupper(trim((string) $hash[0]));
     }
 
     /**

@@ -4,14 +4,31 @@ namespace Duchesse\Chaton\Marie;
 
 use Duchesse\Chaton\Marie\ThePirateBay\Scraper;
 use Duchesse\Chaton\Marie\Util;
+use Duchesse\Chaton\Marie\Models\Movie;
 
 class Controller
 {
+    /**
+     * @var \Slim\Slim
+     */
+    protected $app;
+
+    /**
+     * @var EntityManager
+     */
+    protected $em;
+
     protected $data;
     protected $meta = [
         'success' => true,
         'messages' => [],
     ];
+
+    public function __construct($app)
+    {
+        $this->app = $app;
+        $this->em = Util::getEntityManager();
+    }
 
     protected function out()
     {
@@ -35,7 +52,7 @@ class Controller
     public function movieList()
     {
         $movies =
-            Util::getEntityManager()
+            $this->em
             ->createQuery('SELECT m FROM Marie:Movie m')
             ->getArrayResult()
         ;
@@ -46,15 +63,35 @@ class Controller
 
     public function movieGet($imdbId)
     {
-        $movies =
-            Util::getEntityManager()
-            ->createQuery('SELECT m FROM Marie:Movie m where m.imdbId = :imdbId')
-            ->setParameter('imdbId', $imdbId)
-            ->getArrayResult()
-        ;
+        $get = function($imdbId) {
+            return
+                $this->em
+                ->createQuery('SELECT m FROM Marie:Movie m where m.imdbId = :imdbId')
+                ->setParameter('imdbId', $imdbId)
+                ->getArrayResult()
+            ;
+        };
+        $movies = $get($imdbId);
+
+        if (!count($movies)) {
+            $this->movieCreate($imdbId);
+            $movies = $get($imdbId);
+            if (!count($movies))
+                throw new \RuntimeException('Unable to fetch requested movie.');
+        }
 
         $this->data = compact('movies');
         $this->out();
+    }
+
+    protected function movieCreate($imdbId)
+    {
+        $movie = new Movie();
+        $movie->setImdbId($imdbId);
+        $movie->refreshFromImdb();
+        $movie->refreshFromTpb();
+        $this->em->persist($movie);
+        $this->em->flush();
     }
 
     public function torrentSearch($query)
