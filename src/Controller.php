@@ -157,4 +157,25 @@ class Controller
         $this->data = compact('freeSpace', 'stats');
         $this->out();
     }
+
+    public function movieGif($imdbId, $start, $stop)
+    {
+        $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
+        if ($movie === null)
+            throw new \InvalidArgumentException('Unknown movie.');
+
+        if ($movie->status !== Movie::STATUS_CACHED)
+            throw new \InvalidArgumentException('Not in cache.');
+
+        $process = new Processor($imdbId);
+        $path = $process('gif', compact('start', 'stop'));
+        $this->data = [
+            'movies' => [[
+                'imdbId' => $imdbId,
+                'gif' => Util::buildUrl($path),
+            ]],
+        ];
+
+        $this->out();
+    }
 }

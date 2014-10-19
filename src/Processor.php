@@ -27,7 +27,7 @@ class Processor
             mkdir($this->sourcesDir, 0755, true);
     }
 
-    public function __invoke()
+    public function __invoke($action, array $params = [])
     {
         syslog(LOG_INFO, "Start processing movie #{$this->imdbId}.");
 
@@ -40,7 +40,7 @@ class Processor
         if (file_exists($sourcePath))
             unlink($sourcePath);
 
-        link($realPath, $sourcePath);
+        symlink($realPath, $sourcePath);
 
         $gif = new \GifTool(
             basename($sourcePath),
@@ -50,10 +50,14 @@ class Processor
             '/opt/ffmpeg/ffmpeg',
             false
         );
-        echo "50\n";
-
-        $gif->to_mute();
-        echo "100\n";
+        if($action === 'preview') {
+            echo "50\n";
+            $gif->to_mute();
+            echo "100\n";
+        } else if($action == 'gif') {
+            $path = $gif->to_gif($params['start'], $params['stop'], '', 'low', '');
+            return substr($path, strlen($this->videosDir));
+        }
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
     }

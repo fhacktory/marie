@@ -12,4 +12,4 @@ if (empty($argv[1]))
     throw new \InvalidArgumentException('No IMDB ID given as argv[1].');
 
 $process = new Processor($argv[1]);
-$process();
+$process('preview');
