@@ -8,23 +8,79 @@ use Duchesse\Chaton\Marie\Models\Movie;
 class Processor
 {
     protected $em;
+    protected $api;
     protected $imdbId;
+    protected $videosDir;
+    protected $sourcesDir;
 
     public function __construct($imdbId)
     {
         $this->em = Util::getEntityManager();
+        $this->api = Util::getTransmissionApi();
         $this->imdbId = $imdbId;
+        $this->videosDir  = dirname(__DIR__) . '/videos';
+        $this->sourcesDir = $this->videosDir . '/sources';
+
+        if (!file_exists($this->videosDir))
+            mkdir($this->videosDir, 0755, true);
+        if (!file_exists($this->sourcesDir))
+            mkdir($this->sourcesDir, 0755, true);
     }
 
     public function __invoke()
     {
-        syslog(LOG_INFO, "Starting processing movie #{$this->imdbId}.");
+        syslog(LOG_INFO, "Start processing movie #{$this->imdbId}.");
 
-        for($i = 0; $i <= 100; $i += 10) {
-            echo $i . PHP_EOL;
-            sleep(1);
-        }
+        $movie = $this->em->getRepository('Marie:Movie')->find($this->imdbId);
+        if ($movie === null)
+            throw new \RuntimeException('Movie not found.');
+
+        $realPath = $this->getMovieRealpath($movie);
+        $sourcePath = realpath($this->sourcesDir) . '/' . $movie->torrentHash;
+        if (file_exists($sourcePath))
+            unlink($sourcePath);
+
+        link($realPath, $sourcePath);
+
+        $gif = new \GifTool(
+            basename($sourcePath),
+            '/opt/ffmpeg/ffprobe',
+            $this->videosDir . '/',
+            $this->sourcesDir . '/',
+            '/opt/ffmpeg/ffmpeg',
+            false
+        );
+        echo "10\n";
+
+        $gif->to_mute();
+        echo "60\n";
+
+        $gif->mplayer_convert();
+        echo "70\n";
+
+        $gif->to_thumbnails();
+        echo "80\n";
+        $gif->get_key_frames();
+        echo "90\n";
+        $gif->link_thumbs_with_key_frames();
+        echo "100\n";
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
+    }
+
+    protected function getMovieRealpath(Movie $movie)
+    {
+        $torrent = $this->api->get($movie->torrentHash);
+        if (!$torrent->isFinished())
+            throw new \RuntimeException('Torrent not finished.');
+
+        $biggest = $torrent->getFiles()[0];
+        foreach ($torrent->getFiles() as $file) {
+            if ($file->getSize() > $biggest->getSize())
+                $biggest = $file;
+        }
+        assert('$biggest->getCompleted() === $biggest->getSize()');
+
+        return realpath($this->api->getSession()->getDownloadDir() . '/' . $biggest->getName());
     }
 }
