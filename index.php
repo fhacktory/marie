@@ -23,6 +23,11 @@ $app->error(function($e) use ($app) {
     ]);
 });
 
+$app->get('/', function() {
+    header('Location: //trolls.cat');
+    exit();
+});
+
 $app->group('/api', function() use ($app) {
     $controller = new Controller($app);
     $app->get('/movie/list',              [$controller, 'movieList']);
