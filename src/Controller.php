@@ -61,6 +61,24 @@ class Controller
         $this->out();
     }
 
+    public function movieGetStream($imdbId)
+    {
+        $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
+        if ($movie === null)
+            throw new \InvalidArgumentException('Unknown movie.');
+
+        if ($movie->status !== Movie::STATUS_CACHED)
+            throw new \InvalidArgumentException('Not in cache.');
+
+        $this->data = [
+            'movies' => [
+                'imdbId' => $imdbId,
+                'stream' => $movie->getStreamUrl()
+            ],
+        ];
+        $this->out();
+    }
+
     public function movieGet($imdbId)
     {
         $get = function($imdbId) {
@@ -92,16 +110,6 @@ class Controller
         $movie->refreshFromTpb();
         $this->em->persist($movie);
         $this->em->flush();
-    }
-
-    public function movieRefresh($imdbId)
-    {
-        $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
-        $movie->refreshFromImdb();
-        $movie->refreshFromTpb();
-        $this->em->flush();
-
-        $this->movieGet($imdbId);
     }
 
     public function torrentSearch($query)

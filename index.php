@@ -26,8 +26,8 @@ $app->error(function($e) use ($app) {
 $app->group('/api', function() use ($app) {
     $controller = new Controller($app);
     $app->get('/movie/list',            [$controller, 'movieList']);
-    $app->get('/movie/refresh/:imdbId', [$controller, 'movieRefresh']);
     $app->get('/movie/:imdbId',         [$controller, 'movieGet']);
+    $app->get('/movie/stream/:imdbId',  [$controller, 'movieGetStream']);
     $app->get('/torrent/search/:query', [$controller, 'torrentSearch']);
     $app->get('/status',                [$controller, 'status']);
 });

@@ -84,4 +84,15 @@ class Movie
         $this->torrentHash = $torrents[0]->hash;
         $this->magnet      = $torrents[0]->magnet;
     }
+
+    public function getStreamUrl()
+    {
+        if ($this->status !== self::STATUS_CACHED)
+            return null;
+
+        return Util::buildUrl(Util::strTpl(
+            '{hash}/mute/mute-{hash}.mp4',
+            ['hash' => $this->torrentHash]
+        ));
+    }
 }

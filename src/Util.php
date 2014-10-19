@@ -56,7 +56,7 @@ class Util
      * @param string $uri
      * @return string URL with limited lifetime.
      */
-    function buildUrl($uri)
+    public static function buildUrl($uri)
     {
       $expire = time() + self::URL_EXPIRE;
 
@@ -65,9 +65,9 @@ class Util
       $finalToken = str_replace(['=', '+', '/'], ['', '-', '_'], $encodedToken);
 
       return sprintf(
-          'http://%s%s?md5=%s&expires=%d',
+          'http://%s/%s?md5=%s&expires=%d',
           self::URL_HOST,
-          $path,
+          $uri,
           $finalToken,
           $expire
       );
