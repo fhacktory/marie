@@ -55,7 +55,7 @@ class Processor
             $gif->to_mute();
             echo "100\n";
         } else if($action == 'gif') {
-            $path = $gif->to_gif($params['start'], $params['stop'], '', $params['quality']);
+            $path = $gif->to_gif($params['start'], $params['stop'], $params['text'], $params['quality']);
             return substr($path, strlen($this->videosDir));
         }
 

@@ -158,7 +158,7 @@ class Controller
         $this->out();
     }
 
-    public function movieGif($imdbId, $start, $stop, $quality)
+    public function movieGif($imdbId, $start, $stop, $quality, $text = null)
     {
         $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
         if ($movie === null)
@@ -168,7 +168,7 @@ class Controller
             throw new \InvalidArgumentException('Not in cache.');
 
         $process = new Processor($imdbId);
-        $path = $process('gif', compact('start', 'stop', 'quality'));
+        $path = $process('gif', compact('start', 'stop', 'quality', 'text'));
         $this->data = [
             'movies' => [[
                 'imdbId' => $imdbId,
