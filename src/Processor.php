@@ -37,16 +37,21 @@ class Processor
 
         $realPath = $this->getMovieRealpath($movie);
         $sourcePath = realpath($this->sourcesDir) . '/' . $movie->torrentHash;
-        if (!file_exists($sourcePath))
-            link($realPath, $sourcePath);
+        if (file_exists($sourcePath))
+            unlink($sourcePath);
+
+        link($realPath, $sourcePath);
 
         $gif = new \GifTool(
             basename($sourcePath),
             '/opt/ffmpeg/ffprobe',
             $this->videosDir . '/',
             $this->sourcesDir . '/',
-            '/opt/ffmpeg/ffmpeg'
+            '/opt/ffmpeg/ffmpeg',
+            false
         );
+
+        $gif->to_mute();
         $gif->mplayer_convert();
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
