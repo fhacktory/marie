@@ -50,12 +50,9 @@ class Processor
             '/opt/ffmpeg/ffmpeg',
             false
         );
-        echo "10\n";
+        echo "50\n";
 
         $gif->to_mute();
-        echo "60\n";
-
-        $gif->mplayer_convert();
         echo "100\n";
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");

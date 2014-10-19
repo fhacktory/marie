@@ -61,32 +61,6 @@ class Controller
         $this->out();
     }
 
-    public function movieGetThumbnails($imdbId)
-    {
-        $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
-        if ($movie === null)
-            throw new \InvalidArgumentException('Unknown movie.');
-
-        if ($movie->status !== Movie::STATUS_CACHED)
-            throw new \InvalidArgumentException('Not in cache.');
-
-        $baseDir = realpath(dirname(__DIR__) . '/videos');
-        $dir = "$baseDir/" . $movie->torrentHash . '/thumbnails';
-        $strip = strlen($baseDir);
-        $urls = [];
-        foreach(glob("$dir/*.jpg") as $v) {
-            $urls[] = Util::buildUrl(substr($v, $strip));
-        }
-
-        $this->data = [
-            'movies' => [[
-                'imdbId' => $imdbId,
-                'thumbnails' => $urls
-            ]],
-        ];
-        $this->out();
-    }
-
     public function movieGetStream($imdbId)
     {
         $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);

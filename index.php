@@ -32,7 +32,6 @@ $app->group('/api', function() use ($app) {
     $controller = new Controller($app);
     $app->get('/movie/list',               [$controller, 'movieList']);
     $app->get('/movie/stream/:imdbId',     [$controller, 'movieGetStream']);
-    $app->get('/movie/thumbnails/:imdbId', [$controller, 'movieGetThumbnails']);
     $app->get('/movie/:imdbId(/:create)',  [$controller, 'movieGet']);
     $app->get('/torrent/search/:query',    [$controller, 'torrentSearch']);
     $app->get('/status',                   [$controller, 'status']);
