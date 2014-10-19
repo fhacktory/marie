@@ -37,7 +37,8 @@ class Processor
 
         $realPath = $this->getMovieRealpath($movie);
         $sourcePath = realpath($this->sourcesDir) . '/' . $movie->torrentHash;
-        link($realPath, $sourcePath);
+        if (!file_exists($sourcePath))
+            link($realPath, $sourcePath);
 
         $gif = new \GifTool(
             basename($sourcePath),
@@ -46,6 +47,7 @@ class Processor
             $this->sourcesDir . '/',
             '/opt/ffmpeg/ffmpeg'
         );
+        $gif->mplayer_convert();
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
     }
