@@ -30,9 +30,9 @@ $app->get('/', function() {
 
 $app->group('/api', function() use ($app) {
     $controller = new Controller($app);
+    $app->get('/movie/gif/:imdbId/:start/:stop/:quality/:scale', [$controller, 'movieGif']);
     $app->get('/movie/list',                     [$controller, 'movieList']);
     $app->get('/movie/stream/:imdbId',           [$controller, 'movieGetStream']);
-    $app->get('/movie/gif/:imdbId/:start/:stop', [$controller, 'movieGif']);
     $app->get('/movie/:imdbId(/:create)',        [$controller, 'movieGet']);
     $app->get('/torrent/search/:query',          [$controller, 'torrentSearch']);
     $app->get('/status',                         [$controller, 'status']);
