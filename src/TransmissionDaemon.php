@@ -10,11 +10,13 @@ class TransmissionDaemon
     protected $api;
     protected $em;
     protected $proc;
+    protected $bin;
 
     public function __construct()
     {
         $this->api = Util::getTransmissionApi();
         $this->em = Util::getEntityManager();
+        $this->bin = realpath(dirname(__DIR__)) . '/process';
     }
 
     public function __invoke()
@@ -45,8 +47,13 @@ class TransmissionDaemon
                         $this->process($movie);
                     break;
                 case Movie::STATUS_PROCESSING:
-                    if ($this->proc === null)
+                    if ($this->proc === null) {
+                        $movie->status = Movie::STATUS_PENDING_PROCESSING;
+                        $movie->progress = null;
+                        $this->em->flush();
+                        exec(sprintf('killall %s', escapeshellarg($this->bin)));
                         throw new \RuntimeException("Movie #{$movie->imdbId} processing but no proc.");
+                    }
                     $this->updateProcessing($movie);
                     break;
                 case Movie::STATUS_CACHED:
@@ -63,9 +70,7 @@ class TransmissionDaemon
         assert('$movie->status === \Duchesse\Chaton\Marie\Models\Movie::STATUS_PENDING_PROCESSING');
         syslog(LOG_INFO, "Starting process on #{$movie->imdbId}.");
 
-        $bin = realpath(dirname(__DIR__)) . '/process';
-
-        $this->proc = popen($bin . ' ' . escapeshellarg($movie->imdbId), 'r');
+        $this->proc = popen($this->bin . ' ' . escapeshellarg($movie->imdbId), 'r');
         $movie->status = Movie::STATUS_PROCESSING;
         $movie->progress = 0;
         $this->em->flush();
