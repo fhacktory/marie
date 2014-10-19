@@ -35,7 +35,7 @@ class Processor
         if ($movie === null)
             throw new \RuntimeException('Movie not found.');
 
-        $realPath = $this->getMovieRealpath($movie);
+        $realPath = $movie->getRealpath();
         $sourcePath = realpath($this->sourcesDir) . '/' . $movie->torrentHash;
         if (file_exists($sourcePath))
             unlink($sourcePath);
@@ -60,21 +60,5 @@ class Processor
         }
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
-    }
-
-    protected function getMovieRealpath(Movie $movie)
-    {
-        $torrent = $this->api->get($movie->torrentHash);
-        if (!$torrent->isFinished())
-            throw new \RuntimeException('Torrent not finished.');
-
-        $biggest = $torrent->getFiles()[0];
-        foreach ($torrent->getFiles() as $file) {
-            if ($file->getSize() > $biggest->getSize())
-                $biggest = $file;
-        }
-        assert('$biggest->getCompleted() === $biggest->getSize()');
-
-        return realpath($this->api->getSession()->getDownloadDir() . '/' . $biggest->getName());
     }
 }

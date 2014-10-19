@@ -95,4 +95,21 @@ class Movie
             ['hash' => $this->torrentHash]
         ));
     }
+
+    public function getRealpath()
+    {
+        $api = Util::getTransmissionApi();
+        $torrent = $api->get($this->torrentHash);
+        if (!$torrent->isFinished())
+            throw new \RuntimeException('Torrent not finished.');
+
+        $biggest = $torrent->getFiles()[0];
+        foreach ($torrent->getFiles() as $file) {
+            if ($file->getSize() > $biggest->getSize())
+                $biggest = $file;
+        }
+        assert('$biggest->getCompleted() === $biggest->getSize()');
+
+        return realpath($api->getSession()->getDownloadDir() . '/' . $biggest->getName());
+    }
 }

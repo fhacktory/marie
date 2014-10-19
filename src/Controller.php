@@ -158,7 +158,7 @@ class Controller
         $this->out();
     }
 
-    public function movieGif($imdbId, $start, $stop, $quality, $text = null)
+    public function movieGif ($imdbId, $start, $stop)
     {
         $movie = $this->em->getRepository('Marie:Movie')->find($imdbId);
         if ($movie === null)
@@ -167,8 +167,34 @@ class Controller
         if ($movie->status !== Movie::STATUS_CACHED)
             throw new \InvalidArgumentException('Not in cache.');
 
-        $process = new Processor($imdbId);
-        $path = $process('gif', compact('start', 'stop', 'quality', 'text'));
+        $gifId = sha1(json_encode(compact('imdbId', 'start', 'stop', 'quality', 'text')));
+        $in = $movie->getRealpath();
+        $baseDir = dirname(__DIR__) . '/videos';
+        $out = $baseDir . Util::strTpl('/{hash}/gifs/{gifId}.webm', [
+            'hash' => $movie->torrentHash,
+            'gifId' => $gifId
+        ]);
+
+        if (!file_exists($out)) {
+            $cmd = Util::strTpl(
+                '/opt/ffmpeg/ffmpeg -i {in} -ss {start} -t {duration}'
+                . ' -codec:v libvpx -quality good -cpu-used 0 -b:v 500k -qmin 10'
+                . ' -qmax 42 -maxrate 500k -bufsize 1000k -threads 4'
+                . ' -vf scale=-1:480 {out}',
+                [
+                    'in' => escapeshellarg($in),
+                    'out' => escapeshellarg($out),
+                    'start' => escapeshellarg($start),
+                    'duration' => escapeshellarg($stop - $start),
+                ]
+            );
+            exec($cmd, $_, $exit);
+            if ($exit !== 0)
+                throw new \RuntimeException('Unable to ffmpeg: ' . $cmd);
+        }
+
+        $path = substr($out, strlen($baseDir));
+
         $this->data = [
             'movies' => [[
                 'imdbId' => $imdbId,
