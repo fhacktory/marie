@@ -180,7 +180,7 @@ class Controller
                 '/opt/ffmpeg/ffmpeg -i {in} -ss {start} -t {duration}'
                 . ' -codec:v libvpx -quality good -cpu-used 0 -b:v 300k -qmin 10'
                 . ' -qmax 42 -maxrate 300k -bufsize 1000k -threads 5 -an'
-                . ' -vf scale=-1:480 {out}',
+                . ' -vf scale=-1:320 {out}',
                 [
                    'in'       => escapeshellarg($in),
                    'out'      => escapeshellarg($out),
