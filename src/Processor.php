@@ -56,13 +56,6 @@ class Processor
         echo "60\n";
 
         $gif->mplayer_convert();
-        echo "70\n";
-
-        $gif->to_thumbnails();
-        echo "80\n";
-        $gif->get_key_frames();
-        echo "90\n";
-        $gif->link_thumbs_with_key_frames();
         echo "100\n";
 
         syslog(LOG_INFO, "Done processing movie #{$this->imdbId}.");
