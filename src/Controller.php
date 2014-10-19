@@ -71,10 +71,10 @@ class Controller
             throw new \InvalidArgumentException('Not in cache.');
 
         $this->data = [
-            'movies' => [
+            'movies' => [[
                 'imdbId' => $imdbId,
                 'stream' => $movie->getStreamUrl()
-            ],
+            ]],
         ];
         $this->out();
     }
