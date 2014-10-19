@@ -28,7 +28,7 @@ class TransmissionDaemon
             } catch (\RuntimeException $e) {
                 syslog(LOG_ERR, $e->getMessage());
             }
-            sleep(1);
+            sleep(5);
         }
     }
 
