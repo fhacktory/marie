@@ -79,7 +79,7 @@ class Controller
         $this->out();
     }
 
-    public function movieGet($imdbId)
+    public function movieGet($imdbId, $create = false)
     {
         $get = function($imdbId) {
             return
@@ -91,7 +91,7 @@ class Controller
         };
         $movies = $get($imdbId);
 
-        if (!count($movies)) {
+        if (!count($movies) && $create) {
             $this->movieCreate($imdbId);
             $movies = $get($imdbId);
             if (!count($movies))
