@@ -177,7 +177,7 @@ class Controller
 
         if (!file_exists($out)) {
             $cmd = Util::strTpl(
-                '/opt/ffmpeg/ffmpeg -i {in} -ss {start} -t {duration}'
+                '/opt/ffmpeg/ffmpeg -ss {start} -t {duration} -i {in}'
                 . ' -codec:v libvpx -quality good -cpu-used 0 -b:v 300k -qmin 10'
                 . ' -qmax 42 -maxrate 300k -bufsize 1000k -threads 5 -an'
                 . ' -vf scale=-1:320 {out}',
